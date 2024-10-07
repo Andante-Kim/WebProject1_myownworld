@@ -44,7 +44,7 @@ def answer_modify(request, answer_id):
     context = {'answer':answer, 'form': form}
     return render(request, 'myownworld/answer_form.html', context)
 
-#답변 삭제 함수
+# 답변 삭제 함수
 @login_required(login_url='common:login')
 def answer_delete(request, answer_id):
     answer = get_object_or_404(Answer, pk=answer_id)
@@ -52,4 +52,14 @@ def answer_delete(request, answer_id):
         messages.error(request, '삭제권한이 없습니다')
     else:
         answer.delete()
+    return redirect('myownworld:detail', question_id=answer.question.id)
+
+# 답변 추천 함수
+@login_required(login_url='common:login')
+def answer_vote(request, answer_id):
+    answer = get_object_or_404(Answer, pk=answer_id)
+    if request.user == answer.author:
+        messages.error(request, '본인이 작성한 글은 추천할 수 없습니다.')
+    else:
+        answer.voter.add(request.user)
     return redirect('myownworld:detail', question_id=answer.question.id)
